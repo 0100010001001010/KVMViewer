@@ -1,0 +1,62 @@
+[
+  {
+    "id": "a8b1892f24c15bcd",
+    "type": "inject",
+    "z": "main",
+    "name": "Poll every 10 sec",
+    "props": [],
+    "repeat": "10",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "1",
+    "topic": "",
+    "x": 190,
+    "y": 100,
+    "wires": [["009e3f9c48cb0ef2"]]
+  },
+  {
+    "id": "009e3f9c48cb0ef2",
+    "type": "file in",
+    "z": "main",
+    "name": "Read sensor_data.txt",
+    "filename": "/home/imageone1/sensor_data.txt",
+    "format": "utf8",
+    "x": 430,
+    "y": 100,
+    "wires": [["254c9f12df1648c0"]]
+  },
+  {
+    "id": "254c9f12df1648c0",
+    "type": "function",
+    "z": "main",
+    "name": "Parse temps into Prometheus format",
+    "func": "let line = msg.payload.trim();\n// Expected: temp1=42,temp2=45\nlet parts = line.split(',');\nlet temp1 = parts[0].split('=')[1];\nlet temp2 = parts[1].split('=')[1];\n\nmsg.payload = `temp1 ${temp1}\\ntemp2 ${temp2}`;\nreturn msg;",
+    "x": 730,
+    "y": 100,
+    "wires": [["a6ff994cccdcaaf0"]]
+  },
+  {
+    "id": "a6ff994cccdcaaf0",
+    "type": "http response",
+    "z": "main",
+    "name": "",
+    "statusCode": "",
+    "headers": {
+      "content-type": "text/plain"
+    },
+    "x": 1150,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "c1e0cb3e85d09e9e",
+    "type": "http in",
+    "z": "main",
+    "name": "Prometheus endpoint",
+    "url": "/metrics",
+    "method": "get",
+    "x": 170,
+    "y": 160,
+    "wires": [["009e3f9c48cb0ef2"]]
+  }
+]
